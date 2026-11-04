@@ -1,0 +1,16 @@
+{
+  "name": "nadwicenter-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Serves the Abul Hasan Ali Nadwi Center website and its admin API.",
+  "main": "index.js",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning index.js",
+    "migrate": "node --disable-warning=ExperimentalWarning scripts/migrate.js",
+    "create-admin": "node --disable-warning=ExperimentalWarning scripts/create-admin.js",
+    "test": "node --disable-warning=ExperimentalWarning --test --test-timeout=20000 test/admin.test.js"
+  }
+}

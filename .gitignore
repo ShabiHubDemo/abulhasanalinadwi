@@ -1,0 +1,16 @@
+# Build tool working files (the 881 MB copy of the old site, installed packages)
+tools/node_modules/
+tools/.cache/
+tools/.*.log
+
+# The admin database holds accounts and password hashes: never commit it
+server/data/
+*.db
+*.db-wal
+*.db-shm
+.env
+
+# OS clutter
+Thumbs.db
+desktop.ini
+.DS_Store
