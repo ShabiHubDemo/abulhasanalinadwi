@@ -418,6 +418,14 @@ pages.set('/search/', { key: 'search' });
   }));
 }
 
+// The 404 page is served for any missing URL, so its links need a <base>.
+// The site normally sits at the root ("/"); on GitHub Pages it sits under the
+// repository name (PAGES_BASE, e.g. "/abulhasanalinadwi/"), detected at runtime.
+function baseTag() {
+  const sub = (process.env.PAGES_BASE || '/abulhasanalinadwi/').replace(/^\/?/, '/').replace(/\/?$/, '/');
+  return `  <script>document.write('<base href="' + (location.pathname.indexOf(${JSON.stringify(sub)}) === 0 ? ${JSON.stringify(sub)} : '/') + '">');</script>`;
+}
+
 // 404 page: served for any missing URL, so it uses root-absolute links via <base>
 {
   const html = pageTemplate({
@@ -437,7 +445,7 @@ pages.set('/search/', { key: 'search' });
         <a href="index.html">Home</a><a href="book/index.html">Books</a><a href="magazines/index.html">Magazines</a><a href="category/audio/index.html">Audio</a><a href="contact/index.html">Contact</a>
       </div>
     </div>`,
-  }).replace('<head>', '<head>\n  <base href="/">');
+  }).replace('<head>', '<head>\n' + baseTag());
   fs.writeFileSync(path.join(ROOT, '404.html'), html);
 }
 

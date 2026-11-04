@@ -774,7 +774,8 @@
       form.addEventListener('submit', function (ev) {
         ev.preventDefault();
         if (!form.reportValidity()) return;
-        if (/^https?:$/.test(location.protocol) && !form.dataset.emailOnly) {
+        // send online only when the site's server is there (not on GitHub Pages / static hosting)
+        if (/^https?:$/.test(location.protocol) && !form.dataset.emailOnly && account.serverOk !== false) {
           if (sendBtn) sendBtn.disabled = true;
           sendToServer().then(function (r) {
             if (sendBtn) sendBtn.disabled = false;
@@ -929,12 +930,15 @@
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(function (d) {
         if (!d || !('registrationOpen' in d)) throw new Error('not this site’s server');
+        account.serverOk = true;
         account.user = d.user; account.csrf = d.csrfToken; account.registrationOpen = d.registrationOpen;
+        var askNote = document.querySelector('form[data-mailto] .mail-note');
+        if (askNote) askNote.textContent = 'Your question goes straight to the centre, and they reply by email.';
         document.querySelectorAll('[data-admin-link]').forEach(function (a) { a.classList.add('is-ready'); });
         renderAccountButton();
         renderAccountPage();
       })
-      .catch(function () { /* no server: header stays as it is */ });
+      .catch(function () { account.serverOk = false; /* no server: header stays as it is, Ask us uses email */ });
   }
 
   // ---------- /account/ page ----------
@@ -1099,9 +1103,6 @@
   // When the site runs on its server, the homepage lists and contact details
   // come from /api/public/home. Static copies keep the built-in content above.
   if (/^https?:$/.test(location.protocol)) {
-    var askNote = document.querySelector('form[data-mailto] .mail-note');
-    if (askNote) askNote.textContent = 'Your question goes straight to the centre, and they reply by email.';
-
     fetch(ROOT + 'api/public/home', { credentials: 'same-origin' })
       .then(function (res) { if (!res.ok) throw new Error(res.status); return res.json(); })
       .then(function (d) {
