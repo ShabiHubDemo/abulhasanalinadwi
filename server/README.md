@@ -53,17 +53,19 @@ safety.
 
 ## Hosting on Render
 
-`render.yaml` in the project root sets everything up (HTTPS, a persistent disk
-for the database, production settings).
+`render.yaml` in the project root sets everything up on Render's **free plan**
+(HTTPS, production settings, no card needed).
 
 1. On https://render.com sign in with GitHub, then **New → Blueprint** and pick
-   this repository. Confirm the plan (the disk needs a paid instance).
-2. When the deploy is live, open the service's **Shell** tab and run:
-   `cd server && npm run create-admin -- --email you@example.org --name "Your Name"`
+   this repository.
+2. Fill in `ADMIN_EMAIL`, `ADMIN_NAME` and `ADMIN_PASSWORD` when asked. The
+   server creates that administrator whenever the database has none.
 3. Sign in at `https://<your-service>.onrender.com/admin/login`.
 
-The database lives on the disk at `/var/data/nadwicenter.db`; Render snapshots
-disks daily. Every push to `main` redeploys automatically.
+The free plan has no permanent disk: after a restart, deploy or ~15 minutes
+idle the database starts empty, so visitor accounts and admin-panel changes are
+lost (the administrator comes back from the env vars). For permanent storage,
+see the comment at the top of `render.yaml`. Every push to `main` redeploys.
 
 ## Roles
 
