@@ -171,7 +171,29 @@ function scopeCss(css) {
 }
 
 // ---------- content clean-up ----------
+// Direct APK downloads, hosted as GitHub Release assets. "latest/download"
+// always serves the newest release, so the link never changes between versions.
+const APK_DOWNLOADS = {
+  '/aasaan-maani-quran-android-app/': {
+    apk: 'https://github.com/ShabiHubDemo/abulhasanalinadwi/releases/latest/download/aasaan-maani-quran.apk',
+    play: 'https://play.google.com/store/apps/details?id=com.hl.aasaanmaaniquran',
+  },
+};
+
+function apkDownloadBlock({ apk, play }) {
+  const icon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M5 21h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  return `<div class="app-download">
+  <a class="app-download__btn" href="${apk}" download>${icon}Download APK</a>
+  <a class="btn-outline" href="${play}" target="_blank" rel="noopener">Get it on Google Play</a>
+  <p class="app-download__note">Installing the APK directly? Your phone will ask you to allow “Install unknown apps” for your browser.</p>
+</div>`;
+}
+
 function cleanContent($, $c, from) {
+  if (APK_DOWNLOADS[from]) {
+    const $target = $c.find('.the_content_wrapper').first();
+    ($target.length ? $target : $c).prepend(apkDownloadBlock(APK_DOWNLOADS[from]));
+  }
   // MediaElement.js players -> plain native audio (the old player needs its scripts)
   $c.find('.mejs-container').each((_, m) => {
     const $m = $(m);
