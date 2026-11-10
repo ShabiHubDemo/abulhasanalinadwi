@@ -140,12 +140,34 @@ function createApp(db) {
   };
 }
 
+async function bootstrapAdmin(db) {
+  const email = String(process.env.ADMIN_EMAIL).trim().toLowerCase();
+  const name = String(process.env.ADMIN_NAME || '').trim() || email.split('@')[0];
+  const password = process.env.ADMIN_PASSWORD;
+  const problem = auth.passwordProblem(password, { email, name });
+  if (problem) throw new Error('ADMIN_PASSWORD: ' + problem);
+  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+  if (existing) {
+    db.prepare(`UPDATE users SET role = 'admin', status = 'active' WHERE id = ?`).run(existing.id);
+  } else {
+    const hash = await auth.hashPassword(password);
+    db.prepare(`INSERT INTO users (email, name, password_hash, role) VALUES (?, ?, ?, 'admin')`).run(email, name, hash);
+  }
+  console.log(`[setup] administrator ${email} is ready (from ADMIN_EMAIL / ADMIN_PASSWORD)`);
+}
+
 function start() {
   const db = open(config.databaseFile);
   const applied = migrate(db);
   if (applied.length) console.log(`[db] applied migrations: ${applied.join(', ')}`);
   if (!db.prepare(`SELECT 1 FROM users WHERE role = 'admin' LIMIT 1`).get()) {
-    console.log('[setup] No administrator yet. Create one with:  npm run create-admin -- --email you@example.org --name "Your Name"');
+    if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
+      // hosts without a permanent disk (Render free plan) start with an empty
+      // database after every restart: recreate the administrator from env vars
+      bootstrapAdmin(db).catch((e) => console.error('[setup] could not create the administrator:', e.message));
+    } else {
+      console.log('[setup] No administrator yet. Create one with:  npm run create-admin -- --email you@example.org --name "Your Name"');
+    }
   }
   setInterval(() => auth.pruneSessions(db), 60 * 60e3).unref();
   const server = http.createServer(createApp(db));

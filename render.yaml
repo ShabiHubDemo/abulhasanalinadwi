@@ -1,16 +1,22 @@
 # Render blueprint: runs the website together with its server, so Admin login,
 # User login and the admin dashboard work at a public https address.
 #
-# Render → New → Blueprint → pick this repository. See server/README.md
-# ("Hosting on Render") for creating the first admin afterwards.
+# Render → New → Blueprint → pick this repository, then fill in ADMIN_EMAIL,
+# ADMIN_NAME and ADMIN_PASSWORD when Render asks for them.
+#
+# FREE PLAN: there is no permanent disk, so the database starts empty after
+# every restart or deploy (the free instance also sleeps after ~15 minutes
+# idle). Visitor accounts and changes made in the admin panel are lost then;
+# the administrator is recreated automatically from the ADMIN_* values.
+# For permanent storage switch to `plan: starter` and add a disk:
+#   disk: { name: nadwicenter-data, mountPath: /var/data, sizeGB: 1 }
+# plus DATABASE_FILE=/var/data/nadwicenter.db.
 
 services:
   - type: web
     name: nadwicenter
     runtime: node
-    # A persistent disk (below) needs a paid instance; on the free plan the
-    # database would be wiped on every restart and accounts would be lost.
-    plan: starter
+    plan: free
     region: singapore
     buildCommand: cd server && npm run migrate
     startCommand: cd server && npm start
@@ -24,9 +30,10 @@ services:
         value: 0.0.0.0
       - key: TRUST_PROXY
         value: "true"
-      - key: DATABASE_FILE
-        value: /var/data/nadwicenter.db
-    disk:
-      name: nadwicenter-data
-      mountPath: /var/data
-      sizeGB: 1
+      # entered in the Render dashboard, never stored in the repository
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_NAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
