@@ -51,6 +51,20 @@ safety.
 4. Run `npm start` under a process manager (systemd, pm2) so it restarts.
 5. Back up the database file regularly.
 
+## Hosting on Render
+
+`render.yaml` in the project root sets everything up (HTTPS, a persistent disk
+for the database, production settings).
+
+1. On https://render.com sign in with GitHub, then **New → Blueprint** and pick
+   this repository. Confirm the plan (the disk needs a paid instance).
+2. When the deploy is live, open the service's **Shell** tab and run:
+   `cd server && npm run create-admin -- --email you@example.org --name "Your Name"`
+3. Sign in at `https://<your-service>.onrender.com/admin/login`.
+
+The database lives on the disk at `/var/data/nadwicenter.db`; Render snapshots
+disks daily. Every push to `main` redeploys automatically.
+
 ## Roles
 
 | Role | Can do |

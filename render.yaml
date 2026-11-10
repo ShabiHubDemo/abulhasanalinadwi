@@ -1,0 +1,32 @@
+# Render blueprint: runs the website together with its server, so Admin login,
+# User login and the admin dashboard work at a public https address.
+#
+# Render → New → Blueprint → pick this repository. See server/README.md
+# ("Hosting on Render") for creating the first admin afterwards.
+
+services:
+  - type: web
+    name: nadwicenter
+    runtime: node
+    # A persistent disk (below) needs a paid instance; on the free plan the
+    # database would be wiped on every restart and accounts would be lost.
+    plan: starter
+    region: singapore
+    buildCommand: cd server && npm run migrate
+    startCommand: cd server && npm start
+    healthCheckPath: /api/auth/session
+    envVars:
+      - key: NODE_VERSION
+        value: 22.14.0
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: TRUST_PROXY
+        value: "true"
+      - key: DATABASE_FILE
+        value: /var/data/nadwicenter.db
+    disk:
+      name: nadwicenter-data
+      mountPath: /var/data
+      sizeGB: 1
