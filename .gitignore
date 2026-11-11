@@ -14,3 +14,9 @@ server/data/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Android build output
+android-app/.gradle/
+android-app/build/
+android-app/app/build/
+android-app/local.properties
