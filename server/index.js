@@ -19,7 +19,7 @@ const MIME = {
 };
 
 // never served: the backend, build tools, dotfiles and docs
-const BLOCKED = /(^|\/)(\.[^/]*|server|tools|node_modules)(\/|$)|\.md$/i;
+const BLOCKED = /(^|\/)(\.[^/]*|server|tools|node_modules|android-app)(\/|$)|\.md$/i;
 
 const BASE_HEADERS = {
   'X-Content-Type-Options': 'nosniff',
